@@ -208,7 +208,17 @@ export default {
           hasExistingAppointments.forEach(appointment => {
             let target_hour_from = payload.date_hours.find(hour => getTime(hour.value) === getTime(appointment.from));
             let target_hour_to = payload.date_hours.find(hour => getTime(hour.value) === getTime(appointment.to));
-            if (!target_hour_from || !target_hour_to) return;
+            // console.log(appointment);
+            // console.log('from'); console.log(target_hour_from);
+            // console.log('to'); console.log(target_hour_to);
+            // console.log('pdh'); console.log(payload.date_hour);
+            if (!target_hour_from || !target_hour_to) {
+              console.log('unable to place');
+              console.log(appointment);
+              target_hour_from = this.closest(appointment.from, payload.date_hours);
+              target_hour_to = this.closest(appointment.to, payload.date_hours);
+              // return
+            }
             let uuid = this.generateUUID();
             filtered_appointments[uuid] = {
               start: target_hour_from.index,
@@ -224,6 +234,23 @@ export default {
         _days.push(payload);
       }
       return { filtered_appointments: filtered_appointments, _days: _days };
+    },
+    closest(num, arr) {
+        var mid;
+        var lo = 0
+        var hi = arr.length - 1;
+        while (hi - lo > 1) {
+            mid = Math.floor ((lo + hi) / 2);
+            if (getTime(arr[mid].value) < getTime(num)) {
+                lo = mid;
+            } else {
+                hi = mid;
+            }
+        }
+        if (getTime(num) - getTime(arr[lo].value) <= getTime(arr[hi].value) - getTime(num)) {
+            return arr[lo];
+        }
+        return arr[hi];
     },
     formatDate(_format, how) {
       return format(_format, how);
